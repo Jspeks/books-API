@@ -1,3 +1,7 @@
+const books = require('express').Router()
+const Book = require('../models/books.js')
+const cors = require('cors')
+
 books.get('/seed', (req, res) => {
     Book.insertMany([{
         "title": "The Shinobi Initiative",
@@ -35,11 +39,45 @@ books.get('/seed', (req, res) => {
         }))
 })
 
+books.get('/', (req, res) => {
+    res.send('get books route')
+    // db.Books.find()
+    // .then((books) => {
+    //     res.render("books/index", { books })
+    // })
+    // .catch((err) => {
+    //     res.render("error404")
+    // })
+})
 
-const router = require('express').Router()
-const db = require('../models')
+books.get('/:id', (req, res) => {
+    Book.findById(
+        req.params.id
+    ).then(foundBook => {
+        res.send(foundBook)
+    })
+})
 
-router.get('/', (req, res) => {})
+books.put('/:id', (req, res) => {
+    Book.findByIdAndUpdate(req.params.id, req.body)
+    .then(() => {
+        res.redirect(`/books/${req.params.id}`)
+    })
+})
 
-module.exports = router
+books.delete('/:id', (req, res) => {
+    Book.findByIdAndDelete(req.params.id)
+    .then(book => {
+        res.redirect('/books', { book })
+    })
+})
+
+books.post('/', (req, res) => {
+    Book.create(req.body)
+    .then(() => {
+        res.redirect('/books')
+    })
+})
+
+module.exports = books
 
